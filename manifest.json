@@ -1,0 +1,14 @@
+{
+    "manifest_version": 3,
+    "name": "UMD Canvas Grade Display",
+    "version": "1.8",
+    "description": "Displays course grades on UMD Canvas dashboard",
+    "permissions": ["activeTab", "scripting"],
+    "host_permissions": [
+      "https://umd.instructure.com/*"
+    ],
+    "content_scripts": [{
+      "matches": ["https://umd.instructure.com/*"],
+      "js": ["content.js"]
+    }]
+  }
