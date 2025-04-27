@@ -1,53 +1,52 @@
 console.log('UMD Canvas Grade Extension is running!');
 
 async function fetchGradeForCourse(courseId) {
-  console.log(`Fetching grade for UMD course ${courseId}`);
+
+  const userId = getCurrentUserId();
+
+  if (!userId) {
+    console.error('Could not determine current user ID');
+    return 'N/A';
+  }
+
+  console.log('Found user ID:', userId);
+
   try {
-    const response = await fetch(`https://umd.instructure.com/courses/${courseId}/grades`);
-    const text = await response.text();
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(text, 'text/html');
+    const response = await fetch(`/api/v1/users/${userId}/enrollments?per_page=50`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
 
-    const userId = getCurrentUserId();
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status}`);
+    }
 
-    if (!userId) {
-      console.error('Could not determine current user ID');
-      return {};
-    }
-    else{
-      console.log('Found user ID:', userId);
-    }
-    
-    
-    // Try multiple potential selectors
-    let gradeElement = doc.querySelector('#submission_final-grade .grade');
+    const data = await response.json();
+    console.log('Enrollments data:', data);
 
-    
-    if (!gradeElement) {
-      console.log('First selector failed, trying alternative selectors');
-    }
-  
-    
-    // Debug what we're seeing in the document
-    console.log('Document title:', doc.title);
-    const finalGradeSection = doc.querySelector('#submission_final-grade');
-    console.log('Final grade section found:', !!finalGradeSection);
-    
-    if (gradeElement) {
-      const grade = gradeElement.textContent.trim();
-      console.log(`Found grade: ${grade} for course ${courseId}`);
+    const enrollment = data.find(enrollment => 
+      enrollment.grades && enrollment.course_id && enrollment.course_id == courseId
+    );
+
+    if (enrollment) {
+      const grade = enrollment.grades.current_score || enrollment.grades.final_score || 'N/A';
+      console.log(`Course ID: ${enrollment.course_id}, Score: ${grade}`);
       return grade;
     } else {
-      console.log(`No grade element found for course ${courseId}`);
-      // Log some of the document to help debug
-      console.log('HTML snippet:', doc.body.innerHTML.substring(0, 500));
+      console.log('No enrollment found for this course');
       return 'N/A';
     }
+
   } catch (error) {
-    console.error(`Error fetching grade for course ${courseId}:`, error);
-    return 'Error';
+    console.error('Error fetching grades:', error);
+    return 'N/A';
   }
-}
+    
+  } 
+
 
 function addGradesToDashboard() {
   if (!window.location.hostname.includes('umd.instructure.com')) {
@@ -96,8 +95,7 @@ async function processCards(courseCards) {
     
     // Display grade for debugging, even N/A
     console.log(`Grade result for ${courseId}: ${grade}`);
-    
-    // Create grade display regardless of N/A or Error for testing
+
     const gradeDisplay = document.createElement('div');
     gradeDisplay.className = 'umd-grade-display';
     gradeDisplay.style.cssText = `
@@ -121,6 +119,7 @@ async function processCards(courseCards) {
     } else {
       console.log(`Could not find header for course ${courseId}`);
     }
+    
   }
 }
 
