@@ -7,3 +7,10 @@ Approach 1 (Web Scrapping):
 
 
 Approach 2 (API):
+
+    const response = await fetch(`/api/v1/users/${userId}/enrollments?per_page=50`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json'
+      }
