@@ -7,19 +7,26 @@ async function fetchGradeForCourse(courseId) {
     const text = await response.text();
     const parser = new DOMParser();
     const doc = parser.parseFromString(text, 'text/html');
+
+    const userId = getCurrentUserId();
+
+    if (!userId) {
+      console.error('Could not determine current user ID');
+      return {};
+    }
+    else{
+      console.log('Found user ID:', userId);
+    }
+    
     
     // Try multiple potential selectors
     let gradeElement = doc.querySelector('#submission_final-grade .grade');
+
     
     if (!gradeElement) {
       console.log('First selector failed, trying alternative selectors');
-      // Try alternative selectors
-      gradeElement = doc.querySelector('.final_grade .grade');
     }
-    
-    if (!gradeElement) {
-      gradeElement = doc.querySelector('.student_assignment.final_grade .grade');
-    }
+  
     
     // Debug what we're seeing in the document
     console.log('Document title:', doc.title);

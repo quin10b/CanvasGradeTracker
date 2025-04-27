@@ -9,6 +9,7 @@
     ],
     "content_scripts": [{
       "matches": ["https://umd.instructure.com/*"],
-      "js": ["content.js"]
+      "js": ["findID.js","content.js"]
     }]
   }
+  
