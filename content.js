@@ -102,7 +102,7 @@ async function processCards(courseCards) {
       position: absolute;
       top: 10px;
       right: 10px;
-      background: rgba(255, 0, 0, 0.9);
+      background: rgba(0, 255, 0, 0.9);
       color: white;
       padding: 5px 10px;
       border-radius: 4px;
